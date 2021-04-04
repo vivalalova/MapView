@@ -9,23 +9,15 @@ import Combine
 import MapKit
 import SwiftUI
 
-// struct MapView_LibraryContent: LibraryContentProvider {
-//    static var views: [LibraryItem] {
-//        [LibraryItem(MapView())]
-//    }
-// }
-
-//
-
-struct MapView: UIViewRepresentable {
+public struct MapView: UIViewRepresentable {
     @State var model = ViedModel()
 
     @Binding var mapType: MKMapType
-    @Binding var coordinateRegion: MKCoordinateRegion?
+    @Binding var coordinateRegion: MKCoordinateRegion
     @Binding var userTrackingMode: MKUserTrackingMode
     @Binding var annotations: [MKAnnotation]
 
-    func makeUIView(context: Context) -> MKMapView {
+    public func makeUIView(context: Context) -> MKMapView {
         let map = MKMapView(frame: .zero)
 
         map.delegate = context.coordinator
@@ -35,24 +27,24 @@ struct MapView: UIViewRepresentable {
         return map
     }
 
-    func updateUIView(_ uiView: MKMapView, context: Context) {
+    public func updateUIView(_ uiView: MKMapView, context: Context) {
         self.setup(map: uiView)
 
         uiView.delegate = context.coordinator
     }
 
-    func makeCoordinator() -> Coordinator {
+    public func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
 
-    init(mapType: Binding<MKMapType> = .constant(.standard),
-         region: Binding<MKCoordinateRegion?> = .constant(nil),
-         isZoomEnabled: Binding<Bool> = .constant(true),
-         isScrollEnabled: Binding<Bool> = .constant(true),
-         showsUserLocation: Binding<Bool> = .constant(true),
-         userTrackingMode: Binding<MKUserTrackingMode> = .constant(.follow),
-         annotations: Binding<[MKAnnotation]> = .constant([]),
-         selectedAnnotations: Binding<[MKAnnotation]> = .constant([])) {
+    public init(mapType: Binding<MKMapType> = .constant(.standard),
+                region: Binding<MKCoordinateRegion>,
+                isZoomEnabled: Binding<Bool> = .constant(true),
+                isScrollEnabled: Binding<Bool> = .constant(true),
+                showsUserLocation: Binding<Bool> = .constant(true),
+                userTrackingMode: Binding<MKUserTrackingMode> = .constant(.follow),
+                annotations: Binding<[MKAnnotation]> = .constant([]),
+                selectedAnnotations: Binding<[MKAnnotation]> = .constant([])) {
         //
         self._mapType = mapType
         self._coordinateRegion = region
@@ -65,9 +57,9 @@ extension MapView {
     private func setup(map: MKMapView) {
         map.mapType = self.mapType
 
-        if let region = self.coordinateRegion {
-            map.region = region
-        }
+//        if let region = self.coordinateRegion {
+            map.region = self.coordinateRegion
+//        }
 
         map.userTrackingMode = self.userTrackingMode
         map.showsUserLocation = true
@@ -119,7 +111,7 @@ extension MapView {
 
 // MARK: - MapViewCoordinator
 
-extension MapView {
+public extension MapView {
     final class Coordinator: NSObject, MKMapViewDelegate {
         let delegate: MapView
 
@@ -131,13 +123,13 @@ extension MapView {
 
 // MARK: - User Location
 
-extension MapView.Coordinator {
+public extension MapView.Coordinator {
     func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {}
 }
 
 // MARK: - Annotation
 
-extension MapView.Coordinator {
+public extension MapView.Coordinator {
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {}
 
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, didChange newState: MKAnnotationView.DragState, fromOldState oldState: MKAnnotationView.DragState) {}
@@ -163,7 +155,7 @@ extension MapView.Coordinator {
 
 // MARK: - Gestures
 
-extension MapView.Coordinator {
+public extension MapView.Coordinator {
     func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
         self.delegate.coordinateRegion = mapView.region
     }
